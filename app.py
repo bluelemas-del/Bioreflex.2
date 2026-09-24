@@ -76,9 +76,14 @@ CSS = """
     }
 
     .status-box {
-        margin-top: 0.25rem;
+        margin: 0 0 14px 0;
         border-left: 4px solid #9D4EDD;
         padding: 1rem 1.1rem;
+        display: block;
+    }
+
+    .status-box:last-child {
+        margin-bottom: 0;
     }
 
     .status-box.warning {
@@ -183,6 +188,48 @@ CSS = """
     .chart-block {
         padding-top: 1.25rem;
         margin-top: 0.5rem;
+    }
+
+    div[data-testid="stMarkdownContainer"] > div {
+        margin-bottom: 16px !important;
+        display: block;
+    }
+
+    div[data-testid="stMarkdownContainer"] > div:last-child {
+        margin-bottom: 0 !important;
+    }
+
+    div.stDownloadButton {
+        margin-top: 24px !important;
+        margin-bottom: 16px !important;
+    }
+
+    div.stDownloadButton > button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 220px;
+        width: auto;
+        background: rgba(26, 19, 51, 0.95);
+        color: #FFFFFF;
+        border: 1px solid #7B2CBF;
+        border-radius: 12px;
+        padding: 0.72rem 1.2rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        transition: all 0.2s ease;
+        box-shadow: 0 10px 24px rgba(123, 44, 191, 0.22);
+    }
+
+    div.stDownloadButton > button:hover {
+        background: linear-gradient(135deg, #7B2CBF, #E0218A);
+        color: #FFFFFF;
+        border-color: #E0218A;
+        box-shadow: 0 12px 26px rgba(224, 33, 138, 0.3);
+    }
+
+    div.stDownloadButton > button > span {
+        color: #FFFFFF;
     }
 </style>
 """
@@ -315,9 +362,10 @@ def build_clinical_decision_plot(df):
             borderwidth=1,
             font=dict(color="#111827", size=11),
         ),
-        margin=dict(t=60, b=40, l=50, r=30),
+        margin=dict(t=20, b=50, l=60, r=40),
+        height=450,
         font=dict(color="#111827"),
-        title=dict(text="MCV vs RBC — Mentzer Decision Line", font=dict(size=18, color="#111827")),
+        title=None,
         annotations=[
             dict(
                 text="Below the line = thalassemia pattern<br>Above the line = iron deficiency pattern",
@@ -357,88 +405,121 @@ def build_clinical_decision_plot(df):
 
 
 def build_reflex_economics_plot(df):
-    reflex_tests = ["Hb Electrophoresis", "Serum Ferritin", "CRP"]
+    from plotly.subplots import make_subplots
+
+    category_order = ["CRP", "Serum Ferritin", "Hb Electrophoresis"]
     revenue_map = {
         "Hb Electrophoresis": int(df["rev_hb_electrophoresis"].sum()) if "rev_hb_electrophoresis" in df.columns else 0,
         "Serum Ferritin": int(df["rev_serum_ferritin"].sum()) if "rev_serum_ferritin" in df.columns else 0,
         "CRP": int(df["rev_crp"].sum()) if "rev_crp" in df.columns else 0,
     }
-    counts = []
-    for test in reflex_tests:
-        counts.append(int((df["reflex_order"] == test).sum()))
+    counts = {test: int((df["reflex_order"] == test).sum()) for test in category_order}
+    revenue_values = [revenue_map[test] for test in category_order]
+    count_values = [counts[test] for test in category_order]
 
-    fig = go.Figure()
-    fig.add_trace(
-        go.Bar(
-            y=reflex_tests,
-            x=counts,
-            orientation="h",
-            name="Reflex tests triggered",
-            marker=dict(color="#7B2CBF", line=dict(color="#7B2CBF", width=1), opacity=0.9),
-            hovertemplate="%{y}<br>Triggered: %{x}<extra></extra>",
-        )
+    fig = make_subplots(
+        rows=1,
+        cols=2,
+        shared_yaxes=True,
+        horizontal_spacing=0.12,
+        subplot_titles=("Cases Triggered", "Revenue (IQD)"),
     )
+
     fig.add_trace(
         go.Bar(
-            y=reflex_tests,
-            x=[revenue_map[test] for test in reflex_tests],
+            x=count_values,
+            y=category_order,
             orientation="h",
-            name="Add-on revenue (IQD)",
+            marker=dict(color="#7B2CBF", line=dict(color="#7B2CBF", width=1), opacity=0.9),
+            text=count_values,
+            texttemplate="%{x}",
+            textposition="outside",
+            hovertemplate="%{y}<br>Triggered: %{x}<extra></extra>",
+            showlegend=False,
+        ),
+        row=1,
+        col=1,
+    )
+
+    fig.add_trace(
+        go.Bar(
+            x=revenue_values,
+            y=category_order,
+            orientation="h",
             marker=dict(color="#E0218A", line=dict(color="#E0218A", width=1), opacity=0.8),
+            text=[f"{value:,.0f} IQD" for value in revenue_values],
+            texttemplate="%{x:,.0f} IQD",
+            textposition="outside",
             hovertemplate="%{y}<br>Revenue: %{x:,.0f} IQD<extra></extra>",
-            xaxis="x2",
-        )
+            showlegend=False,
+        ),
+        row=1,
+        col=2,
     )
 
     fig.update_layout(
         template="plotly_dark",
         paper_bgcolor="#FFFFFF",
         plot_bgcolor="#FFFFFF",
-        barmode="group",
-        margin=dict(t=30, b=60, l=150, r=40),
-        font=dict(color="#111827"),
-        legend=dict(
-            orientation="h",
-            y=-0.25,
-            x=0.5,
-            xanchor="center",
-            bgcolor="#FFFFFF",
-            bordercolor="#D1D5DB",
-            borderwidth=1,
-            font=dict(color="#111827", size=11),
-        ),
-        xaxis=dict(
-            title=dict(text="Triggered cases", font=dict(color="#111827", size=12)),
-            tickfont=dict(color="#111827", size=11),
-            gridcolor="#E5E7EB",
-            zeroline=False,
-            showline=False,
-            linecolor="#D1D5DB",
-        ),
-        xaxis2=dict(
-            title=dict(text="Revenue (IQD)", font=dict(color="#111827", size=12)),
-            overlaying="x",
-            side="top",
-            showgrid=False,
-            zeroline=False,
-            range=[0, max(revenue_map.values()) * 1.2 if revenue_map else 1],
-            tickfont=dict(color="#111827", size=11),
-            linecolor="#D1D5DB",
-        ),
-        yaxis=dict(
-            autorange="reversed",
-            tickfont=dict(color="#111827", size=11),
-            title="",
-            linecolor="#D1D5DB",
-        ),
+        height=450,
+        margin=dict(t=30, b=40, l=120, r=40),
+        font=dict(color="#111827", family="Inter"),
+        showlegend=False,
+    )
+
+    fig.update_xaxes(
+        title_text="Cases Triggered",
+        title_font=dict(color="#111827", size=12, family="Inter"),
+        tickfont=dict(color="#111827", size=11, family="Inter"),
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        showline=False,
+        linecolor="#D1D5DB",
+        range=[0, 600],
+        row=1,
+        col=1,
+    )
+    fig.update_xaxes(
+        title_text="Revenue (IQD)",
+        title_font=dict(color="#111827", size=12, family="Inter"),
+        tickfont=dict(color="#111827", size=11, family="Inter"),
+        gridcolor="#E5E7EB",
+        zeroline=False,
+        showline=False,
+        linecolor="#D1D5DB",
+        range=[0, 9_000_000],
+        row=1,
+        col=2,
+    )
+    fig.update_yaxes(
+        tickmode="array",
+        tickvals=category_order,
+        ticktext=category_order,
+        tickfont=dict(color="#111827", size=11, family="Inter"),
+        title_text="",
+        linecolor="#D1D5DB",
+        row=1,
+        col=1,
+    )
+    fig.update_yaxes(
+        tickmode="array",
+        tickvals=category_order,
+        ticktext=category_order,
+        tickfont=dict(color="#111827", size=11, family="Inter"),
+        title_text="",
+        linecolor="#D1D5DB",
+        matches="y",
+        row=1,
+        col=2,
     )
     return fig
 
 
-def render_status_box(title: str, message: str, tone: str = "warning"):
+def render_status_box(title: str, message: str, tone: str = "warning", last: bool = False):
+    margin_style = "margin-bottom: 0 !important; display: block;" if last else "margin-bottom: 14px !important; display: block;"
     st.markdown(
         f"""
-        <div class="status-box {tone}">
+        <div class="status-box {tone}" style="{margin_style}">
             <div class="status-label">{title}</div>
             <div class="status-copy">{message}</div>
         </div>
@@ -523,9 +604,10 @@ st.markdown("<div class='section-header'></div>", unsafe_allow_html=True)
 st.markdown('<div class="chart-block"></div>', unsafe_allow_html=True)
 chart_col1, chart_col2 = st.columns(2)
 with chart_col1:
+    st.markdown("### MCV vs RBC — Mentzer Decision Line")
     st.plotly_chart(build_clinical_decision_plot(df), use_container_width=True)
 with chart_col2:
-    st.subheader("Diagnostic Reflex & Economics Breakdown")
+    st.markdown("### Diagnostic Reflex & Economics Breakdown")
     st.plotly_chart(build_reflex_economics_plot(df), use_container_width=True, config={"displayModeBar": False})
 
 st.markdown("<div class='section-header'></div>", unsafe_allow_html=True)
@@ -608,11 +690,15 @@ with bench_col1:
         wbc = st.number_input("WBC (10^9/L)", min_value=1.0, max_value=50.0, value=8.4, step=0.1)
 
 with bench_col2:
+    st.markdown(
+        "<div style='display: flex; flex-direction: column; gap: 14px;'>",
+        unsafe_allow_html=True,
+    )
     case_result = evaluate_case(hgb, rbc, mcv, wbc)
     mentzer_value = case_result["mentzer_index"]
     st.markdown(
         f"""
-        <div class="panel">
+        <div class="panel" style="margin-bottom: 0; display: block;">
             <div class="mini-pill">Mentzer index</div>
             <div class="kpi-value" style="font-size:1.7rem; margin-top: 0.6rem;">{mentzer_value:.2f}</div>
         </div>
@@ -627,9 +713,26 @@ with bench_col2:
     render_status_box("Unit economics added value", f"+ {case_result['added_value']:,} IQD through reflex triage.", "success")
 
     if case_result["reflex_order"] != "None":
-        st.info(f"Recommended next step: {case_result['reflex_order']} with preserved sample handling and reflex-driven revenue capture.")
+        st.markdown(
+            """
+            <div class='status-box warning' style='margin-bottom: 0 !important; display: block;'>
+                <div class='status-label'>Recommended next step</div>
+                <div class='status-copy'>Serum Ferritin with preserved sample handling and reflex-driven revenue capture.</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
     else:
-        st.success("No reflex order required. Standard CBC processing remains sufficient.")
+        st.markdown(
+            """
+            <div class='status-box success' style='margin-bottom: 0 !important; display: block;'>
+                <div class='status-label'>Recommended next step</div>
+                <div class='status-copy'>No reflex order required. Standard CBC processing remains sufficient.</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    st.markdown("</div>", unsafe_allow_html=True)
 
 patient_df = build_patient_view(df)
 patient_table = patient_df.to_pandas()
@@ -651,6 +754,8 @@ patient_selector = st.selectbox(
     "Select a patient record to inspect",
     filtered_patient_table["record_id"].astype(int).tolist(),
 )
+
+st.markdown("<div style='margin-bottom: 18px;'></div>", unsafe_allow_html=True)
 
 selected_record = filtered_patient_table[filtered_patient_table["record_id"] == patient_selector].iloc[0]
 
@@ -697,6 +802,7 @@ with record_col2:
         unsafe_allow_html=True,
     )
 
+st.markdown("<div style='margin-top: 24px;'></div>", unsafe_allow_html=True)
 st.dataframe(filtered_patient_table, use_container_width=True)
 
 with st.expander("Pipeline output snapshot"):
