@@ -14,8 +14,8 @@ CSS = """
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
     html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
-        background: linear-gradient(135deg, #0B0813 0%, #120C1E 35%, #1A1030 100%);
-        color: #F8F9FA;
+        background: #F8FAFC;
+        color: #0F172A;
         font-family: 'Inter', sans-serif;
     }
 
@@ -26,24 +26,32 @@ CSS = """
     }
 
     h1, h2, h3, h4, p {
-        color: #F8F9FA;
+        color: #0F172A;
+    }
+
+    .stCaption,
+    .stMarkdownContainer p,
+    .stMarkdownContainer span,
+    .stMarkdownContainer div {
+        color: #64748B;
     }
 
     .stMetric {
-        background: rgba(29, 22, 53, 0.78);
-        border: 1px solid rgba(123, 44, 191, 0.65);
-        border-radius: 18px;
-        box-shadow: 0 0 0 1px rgba(157, 78, 221, 0.18), 0 18px 40px rgba(11, 8, 19, 0.45);
+        background-color: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-top: 3px solid #F472B6;
+        border-radius: 12px;
+        box-shadow: 0 4px 14px 0 rgba(244, 114, 182, 0.08);
         padding: 0.9rem 1rem;
     }
 
     .kpi-card, .status-box, .panel {
-        background: rgba(29, 22, 53, 0.82);
-        border: 1px solid rgba(123, 44, 191, 0.72);
-        border-radius: 18px;
-        box-shadow: 0 0 0 1px rgba(157, 78, 221, 0.15), 0 18px 34px rgba(10, 7, 18, 0.45);
+        background-color: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-top: 3px solid #F472B6;
+        border-radius: 12px;
+        box-shadow: 0 4px 14px 0 rgba(244, 114, 182, 0.08);
         padding: 1rem 1.1rem;
-        backdrop-filter: blur(8px);
     }
 
     .kpi-card {
@@ -51,35 +59,36 @@ CSS = """
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        border-top: 2px solid rgba(199, 125, 255, 0.7);
     }
 
     .kpi-label {
-        color: rgba(248, 249, 250, 0.8);
+        color: #64748B;
         font-size: 0.8rem;
         letter-spacing: 0.08em;
         text-transform: uppercase;
     }
 
     .kpi-value {
-        color: #F8F9FA;
+        color: #0F172A;
         font-size: clamp(1.5rem, 2vw, 2.4rem);
         font-weight: 800;
         margin-top: 0.5rem;
-        text-shadow: 0 0 18px rgba(199, 125, 255, 0.6);
+        text-shadow: none;
     }
 
     .kpi-delta {
-        color: #C77DFF;
+        color: #2563EB;
         font-size: 0.8rem;
         font-weight: 600;
     }
 
     .status-box {
         margin: 0 0 14px 0;
-        border-left: 4px solid #9D4EDD;
         padding: 1rem 1.1rem;
         display: block;
+        border-left: 4px solid #D97706;
+        background: #FFFBEB;
+        color: #92400E;
     }
 
     .status-box:last-child {
@@ -87,22 +96,25 @@ CSS = """
     }
 
     .status-box.warning {
-        border-left-color: #C77DFF;
-        background: rgba(43, 26, 64, 0.8);
+        border-left: 4px solid #7C3AED;
+        background: #F5F3FF;
+        color: #5B21B6;
     }
 
     .status-box.success {
-        border-left-color: #7B9EFF;
-        background: rgba(17, 28, 48, 0.7);
+        border-left: 4px solid #059669;
+        background: #ECFDF5;
+        color: #065F46;
     }
 
     .status-box.info {
-        border-left-color: #F4B942;
-        background: rgba(53, 35, 18, 0.7);
+        border-left: 4px solid #EA580C;
+        background: #FFF7ED;
+        color: #9A3412;
     }
 
     .status-label {
-        color: #C77DFF;
+        color: inherit;
         font-size: 0.72rem;
         letter-spacing: 0.08em;
         text-transform: uppercase;
@@ -111,13 +123,13 @@ CSS = """
     }
 
     .status-copy {
-        color: #F8F9FA;
+        color: inherit;
         font-size: 0.98rem;
         line-height: 1.5;
     }
 
     .panel-title {
-        color: #F8F9FA;
+        color: #0F172A;
         font-size: 1.1rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
@@ -127,7 +139,7 @@ CSS = """
         margin-top: 1rem;
         margin-bottom: 0.75rem;
         padding-bottom: 0.35rem;
-        border-bottom: 1px solid rgba(157, 78, 221, 0.35);
+        border-bottom: 1px solid #E2E8F0;
     }
 
     .mini-pill {
@@ -136,9 +148,9 @@ CSS = """
         gap: 0.4rem;
         padding: 0.4rem 0.7rem;
         border-radius: 999px;
-        background: rgba(157, 78, 221, 0.15);
-        border: 1px solid rgba(199, 125, 255, 0.5);
-        color: #E9D5FF;
+        background: #EFF6FF;
+        border: 1px solid #BFDBFE;
+        color: #1E3A8A;
         font-size: 0.76rem;
         font-weight: 700;
         letter-spacing: 0.04em;
@@ -146,9 +158,9 @@ CSS = """
     }
 
     .stAlert {
-        background: rgba(29, 22, 53, 0.82);
-        border: 1px solid rgba(123, 44, 191, 0.72);
-        border-radius: 14px;
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
     }
 
     .brand-title {
@@ -156,25 +168,38 @@ CSS = """
         line-height: 1.1;
         font-weight: 900;
         letter-spacing: 0.04em;
-        color: #FFFFFF !important;
-        text-shadow:
-            0 0 7px #FFF,
-            0 0 12px #FF2A85,
-            0 0 25px #FF2A85,
-            0 0 45px #FF007F,
-            0 0 80px #D80064;
+        color: transparent;
+        background: linear-gradient(135deg, #EC4899 0%, #F472B6 35%, #C084FC 70%, #818CF8 100%);
+        background-size: 300% 300%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradientShift 6s ease infinite;
+        text-shadow: none;
         margin: 0 0 0.1rem 0;
         padding: 0;
         display: block;
         position: static;
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+    }
+
+    .brand-title:hover {
+        transform: scale(1.02);
+        filter: drop-shadow(0 4px 12px rgba(244, 114, 182, 0.35));
+    }
+
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
 
     .brand-subtitle {
         font-size: 1.4rem;
         font-weight: 600;
         letter-spacing: 0.02em;
-        color: #D1D5DB;
-        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+        color: #DB2777;
+        text-shadow: none;
         margin: 0 0 1.5rem 0;
         padding: 0;
         display: block;
@@ -210,26 +235,26 @@ CSS = """
         justify-content: center;
         min-width: 220px;
         width: auto;
-        background: rgba(26, 19, 51, 0.95);
-        color: #FFFFFF;
-        border: 1px solid #7B2CBF;
+        background: #FDF2F8;
+        border: 1px solid #F472B6;
+        color: #BE185D;
         border-radius: 12px;
         padding: 0.72rem 1.2rem;
-        font-weight: 700;
+        font-weight: 600;
         letter-spacing: 0.02em;
         transition: all 0.2s ease;
-        box-shadow: 0 10px 24px rgba(123, 44, 191, 0.22);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     div.stDownloadButton > button:hover {
-        background: linear-gradient(135deg, #7B2CBF, #E0218A);
-        color: #FFFFFF;
-        border-color: #E0218A;
-        box-shadow: 0 12px 26px rgba(224, 33, 138, 0.3);
+        background: #FCE7F3;
+        color: #BE185D;
+        border-color: #F472B6;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     div.stDownloadButton > button > span {
-        color: #FFFFFF;
+        color: #BE185D;
     }
 </style>
 """
@@ -349,8 +374,8 @@ def build_clinical_decision_plot(df):
     )
 
     fig.update_layout(
-        template="plotly_dark",
-        paper_bgcolor="#FFFFFF",
+        template="plotly_white",
+        paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="#FFFFFF",
         legend=dict(
             orientation="h",
@@ -358,14 +383,16 @@ def build_clinical_decision_plot(df):
             x=0.5,
             xanchor="center",
             bgcolor="#FFFFFF",
-            bordercolor="#D1D5DB",
+            bordercolor="#E2E8F0",
             borderwidth=1,
-            font=dict(color="#111827", size=11),
+            font=dict(color="#0F172A", size=11),
         ),
         margin=dict(t=20, b=50, l=60, r=40),
         height=450,
-        font=dict(color="#111827"),
+        font=dict(color="#0F172A"),
         title=None,
+        xaxis=dict(gridcolor="#F1F5F9", zerolinecolor="#E2E8F0"),
+        yaxis=dict(gridcolor="#F1F5F9", zerolinecolor="#E2E8F0"),
         annotations=[
             dict(
                 text="Below the line = thalassemia pattern<br>Above the line = iron deficiency pattern",
@@ -376,9 +403,9 @@ def build_clinical_decision_plot(df):
                 xanchor="right",
                 yanchor="bottom",
                 showarrow=False,
-                font=dict(size=11, color="#111827"),
+                font=dict(size=11, color="#0F172A"),
                 bgcolor="rgba(255,255,255,0.9)",
-                bordercolor="#E5E7EB",
+                bordercolor="#E2E8F0",
                 borderwidth=1,
             )
         ],
@@ -458,13 +485,15 @@ def build_reflex_economics_plot(df):
     )
 
     fig.update_layout(
-        template="plotly_dark",
-        paper_bgcolor="#FFFFFF",
+        template="plotly_white",
+        paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="#FFFFFF",
         height=450,
         margin=dict(t=30, b=40, l=120, r=40),
-        font=dict(color="#111827", family="Inter"),
+        font=dict(color="#0F172A", family="Inter"),
         showlegend=False,
+        xaxis=dict(gridcolor="#F1F5F9", zerolinecolor="#E2E8F0"),
+        yaxis=dict(gridcolor="#F1F5F9", zerolinecolor="#E2E8F0"),
     )
 
     fig.update_xaxes(
@@ -635,22 +664,24 @@ with left_col:
         )]
     )
     fig.update_layout(
-        template="plotly_dark",
-        paper_bgcolor="#FFFFFF",
+        template="plotly_white",
+        paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="#FFFFFF",
         margin=dict(t=30, b=40, l=40, r=20),
-        font=dict(color="#111827"),
+        font=dict(color="#0F172A"),
         xaxis=dict(
-            title=dict(text="Diagnostic Category", font=dict(color="#111827", size=12)),
-            tickfont=dict(color="#111827", size=11),
-            linecolor="#D1D5DB",
-            gridcolor="#E5E7EB",
+            title=dict(text="Diagnostic Category", font=dict(color="#0F172A", size=12)),
+            tickfont=dict(color="#0F172A", size=11),
+            linecolor="#E2E8F0",
+            gridcolor="#F1F5F9",
+            zerolinecolor="#E2E8F0",
         ),
         yaxis=dict(
-            title=dict(text="Count", font=dict(color="#111827", size=12)),
-            tickfont=dict(color="#111827", size=11),
-            linecolor="#D1D5DB",
-            gridcolor="#E5E7EB",
+            title=dict(text="Count", font=dict(color="#0F172A", size=12)),
+            tickfont=dict(color="#0F172A", size=11),
+            linecolor="#E2E8F0",
+            gridcolor="#F1F5F9",
+            zerolinecolor="#E2E8F0",
             zeroline=False,
         ),
         bargap=0.4,
@@ -698,9 +729,9 @@ with bench_col2:
     mentzer_value = case_result["mentzer_index"]
     st.markdown(
         f"""
-        <div class="panel" style="margin-bottom: 0; display: block;">
-            <div class="mini-pill">Mentzer index</div>
-            <div class="kpi-value" style="font-size:1.7rem; margin-top: 0.6rem;">{mentzer_value:.2f}</div>
+        <div class="panel" style="margin-bottom: 0; display: block; border-left: 4px solid #2563EB; background: #EFF6FF; color: #1E3A8A;">
+            <div class="mini-pill" style="background: #DBEAFE; border-color: #93C5FD; color: #1E3A8A;">Mentzer index</div>
+            <div class="kpi-value" style="font-size:1.7rem; margin-top: 0.6rem; color: #1E3A8A;">{mentzer_value:.2f}</div>
         </div>
         """,
         unsafe_allow_html=True,
