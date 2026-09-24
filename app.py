@@ -307,16 +307,15 @@ def build_clinical_decision_plot(df):
         plot_bgcolor="#FFFFFF",
         legend=dict(
             orientation="h",
-            y=1.12,
+            y=-0.2,
             x=0.5,
             xanchor="center",
-            yanchor="bottom",
             bgcolor="#FFFFFF",
             bordercolor="#D1D5DB",
             borderwidth=1,
             font=dict(color="#111827", size=11),
         ),
-        margin=dict(t=80, b=50, l=60, r=40),
+        margin=dict(t=60, b=40, l=50, r=30),
         font=dict(color="#111827"),
         title=dict(text="MCV vs RBC — Mentzer Decision Line", font=dict(size=18, color="#111827")),
         annotations=[
