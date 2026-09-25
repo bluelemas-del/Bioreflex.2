@@ -1,5 +1,6 @@
 import streamlit as st
 import polars as pl
+from urllib.parse import quote
 
 from pipeline import CBCPipeline
 
@@ -133,6 +134,27 @@ PAGE_CSS = """
         border-radius: 12px;
         overflow: hidden;
     }
+
+    [data-testid="stLinkButton"] > a {
+        background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%);
+        border: 1px solid #F9A8D4;
+        border-radius: 12px;
+        color: #FFFFFF !important;
+        font-weight: 700;
+        padding: 0.8rem 1.1rem;
+        box-shadow: 0 10px 24px rgba(236, 72, 153, 0.18);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    [data-testid="stLinkButton"] > a:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 28px rgba(236, 72, 153, 0.22);
+    }
+
+    [data-testid="stLinkButton"] > a:focus-visible {
+        outline: 3px solid rgba(244, 114, 182, 0.25);
+        outline-offset: 2px;
+    }
 </style>
 """
 
@@ -232,6 +254,17 @@ def build_pdf_footnote(row: dict) -> str:
         f"Clinical recommendation: Microcytic pattern with Mentzer index {row.get('mentzer_index', 0.0):.2f} is consistent with {context}. "
         f"Please proceed with {test_name} confirmation at the earliest opportunity to avoid delayed diagnosis and repeat venipuncture."
     )
+
+
+def normalize_phone_number(raw_phone: str) -> str:
+    digits = "".join(ch for ch in (raw_phone or "") if ch.isdigit())
+    if not digits:
+        return ""
+    if digits.startswith("964"):
+        return f"+{digits}"
+    if digits.startswith("0"):
+        return f"+964{digits[1:]}"
+    return f"+{digits}"
 
 
 st.set_page_config(page_title="Reflex Triage", layout="wide")
@@ -354,7 +387,32 @@ st.markdown(
 
 st.markdown("### WhatsApp Upsell & Clinical Communication Console")
 whatsapp_text = build_whatsapp_message(selected_row)
+
+phone_default = "+9647XXXXXXXXX"
+phone_number = st.text_input(
+    "Patient phone number",
+    value=st.session_state.get("selected_phone_number", ""),
+    key="selected_phone_number",
+    placeholder=phone_default,
+    help="Use a valid local mobile number so the dispatch link opens directly in WhatsApp.",
+)
+
+normalized_phone = normalize_phone_number(phone_number)
+wa_url = ""
+if normalized_phone:
+    wa_url = f"https://wa.me/{normalized_phone}?text={quote(whatsapp_text, safe='')}"
+
 st.text_area("Ready-to-copy message", whatsapp_text, height=280, key="whatsapp_message")
+
+if normalized_phone:
+    st.link_button(
+        "📲 Open in WhatsApp / إرسال عبر الواتساب",
+        url=wa_url,
+        use_container_width=True,
+        type="primary",
+    )
+else:
+    st.info("Enter the patient phone number to generate the direct WhatsApp dispatch link.")
 
 if st.button("Confirm Patient Consent & Add to Bill", use_container_width=True):
     st.session_state.setdefault("reflex_dispatch_status", {})
@@ -365,6 +423,7 @@ if st.button("Confirm Patient Consent & Add to Bill", use_container_width=True):
     )
 
 pdf_footnote = build_pdf_footnote(selected_row)
-st.text_area("Copy Clinical PDF Footnote", pdf_footnote, height=120, key="pdf_footnote")
+st.markdown("### Clinical PDF Recommendation")
+st.code(pdf_footnote, language=None)
 
 st.caption("The reflex status is tracked per patient within this session, and the billable confirmation total updates dynamically.")
