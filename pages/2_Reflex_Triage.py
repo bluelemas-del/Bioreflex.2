@@ -400,16 +400,20 @@ phone_number = st.text_input(
 normalized_phone = normalize_phone_number(phone_number)
 wa_url = ""
 if normalized_phone:
-    wa_url = f"https://wa.me/{normalized_phone}?text={quote(whatsapp_text, safe='')}"
+    clean_phone = normalized_phone.replace("+", "")
+    wa_url = f"https://api.whatsapp.com/send?phone={clean_phone}&text={quote(whatsapp_text, safe='')}"
 
 st.text_area("Ready-to-copy message", whatsapp_text, height=280, key="whatsapp_message")
 
 if normalized_phone:
-    st.link_button(
-        "📲 Open in WhatsApp / إرسال عبر الواتساب",
-        url=wa_url,
-        use_container_width=True,
-        type="primary",
+    st.markdown(
+        f'<a href="{wa_url}" target="_blank" rel="noopener noreferrer">'
+        '<button style="width: 100%; background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%); '
+        'border: 1px solid #F9A8D4; border-radius: 12px; color: white; font-weight: 700; '
+        'padding: 0.8rem 1.1rem; cursor: pointer; box-shadow: 0 10px 24px rgba(236, 72, 153, 0.18);">'
+        '📲 Open in WhatsApp / إرسال عبر الواتساب'
+        '</button></a>',
+        unsafe_allow_html=True,
     )
 else:
     st.info("Enter the patient phone number to generate the direct WhatsApp dispatch link.")
