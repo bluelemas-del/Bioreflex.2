@@ -3,3 +3,4 @@ pandas
 polars
 plotly
 scikit-learn
+# deploy trigger update
