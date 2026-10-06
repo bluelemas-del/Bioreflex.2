@@ -1,3 +1,6 @@
+import io
+
+import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
@@ -260,16 +263,26 @@ CSS = """
 """
 
 
+TEMPLATE_CSV = "WBC,RBC,HGB,MCV,HCT,MCHC\n7.2,3.97,9.0,77.0,30.5,29.5\n6.0,4.80,13.5,88.0,41.0,33.0\n"
+
+
 @st.cache_data(show_spinner=False)
-def load_dashboard_data(csv_path: str = CSV_PATH):
-    pipeline = CBCPipeline(csv_path)
-    pipeline.load_and_standardize()
-    pipeline.sanitize_and_filter()
-    pipeline.compute_indices_and_rules()
-    pipeline.compute_economics()
-    df = pipeline.df
-    summary = pipeline.summarize()
-    return df, summary
+def load_dashboard_data(name: str | None = None, data: bytes | None = None, exclude_flagged: bool = False):
+    """Run the pipeline on an uploaded file (name + bytes) or on the bundled CSV."""
+    if data is None:
+        source = CSV_PATH
+    else:
+        if name.lower().endswith((".xlsx", ".xls")):
+            # Round-trip through CSV so odd Excel dtypes can't break Polars
+            csv_bytes = pd.read_excel(io.BytesIO(data)).to_csv(index=False).encode("utf-8")
+        else:
+            csv_bytes = data
+        source = pl.read_csv(
+            io.BytesIO(csv_bytes), infer_schema_length=10000, ignore_errors=True, encoding="utf8-lossy"
+        )
+    pipeline = CBCPipeline(source, exclude_flagged=exclude_flagged)
+    df = pipeline.run()
+    return df, pipeline.summarize(), pipeline.report
 
 
 def format_iqd(value: float | int) -> str:
@@ -314,6 +327,14 @@ def evaluate_case(hgb: float, rbc: float, mcv: float, wbc: float):
         "tube_alert": tube_alert,
         "added_value": added_value,
     }
+
+
+NEXT_STEPS = {
+    "Hb Electrophoresis": "Run Hb Electrophoresis to confirm or exclude a hemoglobinopathy. Keep the EDTA tube intact and protected from hemolysis.",
+    "Serum Ferritin": "Run Serum Ferritin (with iron studies) to confirm iron deficiency. Keep the serum tube separated and labeled.",
+    "CRP": "Run CRP to assess systemic inflammation. Separate the serum promptly.",
+    "None": "No reflex order required. Standard CBC processing remains sufficient.",
+}
 
 
 def render_kpi_card(title: str, value: str, delta: str = ""):
@@ -484,12 +505,13 @@ def build_reflex_economics_plot(df):
         col=2,
     )
 
+    fig.update_traces(cliponaxis=False)
     fig.update_layout(
         template="plotly_white",
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="#FFFFFF",
         height=450,
-        margin=dict(t=30, b=40, l=120, r=40),
+        margin=dict(t=30, b=40, l=120, r=110),
         font=dict(color="#0F172A", family="Inter"),
         showlegend=False,
         xaxis=dict(gridcolor="#F1F5F9", zerolinecolor="#E2E8F0"),
@@ -504,7 +526,6 @@ def build_reflex_economics_plot(df):
         zeroline=False,
         showline=False,
         linecolor="#D1D5DB",
-        range=[0, 600],
         row=1,
         col=1,
     )
@@ -516,7 +537,6 @@ def build_reflex_economics_plot(df):
         zeroline=False,
         showline=False,
         linecolor="#D1D5DB",
-        range=[0, 9_000_000],
         row=1,
         col=2,
     )
@@ -575,6 +595,9 @@ def build_patient_view(df):
     ]
     if "diagnosis" in df.columns:
         cols.insert(0, "diagnosis")
+    for extra in ("source_row", "data_quality_flag"):
+        if extra in df.columns:
+            cols.append(extra)
 
     patient_df = df.select(cols).with_row_index(name="record_id").with_columns(
         (pl.col("record_id") + 1).alias("record_id")
@@ -591,10 +614,46 @@ st.caption("Integrated hematology triage, reflex-driven economics, and lab-side 
 
 st.markdown('<div class="top-spacer"></div>', unsafe_allow_html=True)
 
+with st.sidebar:
+    st.markdown("### Data")
+    uploaded = st.file_uploader(
+        "Upload CBC file",
+        type=["csv", "xlsx"],
+        help="Needs columns WBC, RBC, HGB, MCV. HCT and MCHC are optional.",
+    )
+    exclude_flagged = st.checkbox(
+        "Exclude rows with implausible values",
+        value=False,
+        help="Rows outside normal physiologic limits are flagged either way; tick this to leave them out of all totals and charts.",
+    )
+    st.download_button(
+        "Download file template",
+        data=TEMPLATE_CSV,
+        file_name="bioreflex_template.csv",
+        mime="text/csv",
+        use_container_width=True,
+    )
+    if uploaded is None:
+        st.caption(f"Showing the bundled sample dataset (`{CSV_PATH}`). Upload a file to analyze your own data.")
+
 try:
-    df, summary = load_dashboard_data()
+    df, summary, quality = load_dashboard_data(
+        uploaded.name if uploaded else None,
+        uploaded.getvalue() if uploaded else None,
+        exclude_flagged,
+    )
+except ValueError as exc:  # missing columns etc. - tell the user what to fix
+    st.error(f"Could not analyze this file. {exc}")
+    st.stop()
 except Exception as exc:  # pragma: no cover - UI guard
-    st.error(f"The CBC pipeline could not load: {exc}")
+    st.error(f"The file could not be read ({type(exc).__name__}: {exc}). Please check it is a valid CSV or Excel file.")
+    st.stop()
+
+if df.height == 0:
+    st.warning(
+        f"No usable rows. {quality['rows_loaded']:,} rows were loaded but all were rejected "
+        "(missing HGB/RBC/MCV, non-positive RBC, or excluded as implausible)."
+    )
     st.stop()
 
 baseline_revenue = float(df["base_price"].sum()) if "base_price" in df.columns else summary["processed_rows"] * CBCPipeline.BASE_CBC_PRICE
@@ -627,6 +686,60 @@ with export_col:
             mime="text/csv",
             use_container_width=True,
         )
+
+st.markdown("<div class='section-header'></div>", unsafe_allow_html=True)
+st.markdown("<div class='panel-title'>Data Quality</div>", unsafe_allow_html=True)
+
+rejected_total = quality["rejected_missing"] + quality["rejected_rbc_nonpositive"]
+dq_cols = st.columns(4)
+dq_cards = [
+    ("Rows loaded", f"{quality['rows_loaded']:,}", "From the file"),
+    ("Rows analyzed", f"{quality['rows_used']:,}", "Used in every total and chart"),
+    ("Rows rejected", f"{rejected_total:,}", "Missing HGB/RBC/MCV or RBC <= 0"),
+    ("Rows flagged", f"{quality['flagged_rows']:,}", "Implausible values (excluded)" if quality["excluded_flagged"] else "Implausible values (still included)"),
+]
+for col, (title, value, delta) in zip(dq_cols, dq_cards):
+    with col:
+        render_kpi_card(title, value, delta)
+
+st.markdown("<div style='margin-top: 14px;'></div>", unsafe_allow_html=True)
+if quality["flagged_rows"] and not quality["excluded_flagged"]:
+    breakdown = "<br>".join(f"&bull; {label}: {n:,} row(s)" for label, n in quality["flag_breakdown"].items())
+    render_status_box(
+        "Check your data",
+        f"{quality['flagged_rows']:,} row(s) contain values outside normal physiologic limits and are still counted in the totals below. "
+        f"These distort averages and may trigger wrong reflex orders. Tick &quot;Exclude rows with implausible values&quot; in the sidebar to remove them.<br>{breakdown}",
+        "warning",
+    )
+elif quality["flagged_rows"]:
+    render_status_box(
+        "Rows excluded",
+        f"{quality['excluded_flagged']:,} row(s) with implausible values were left out of all totals and charts.",
+        "info",
+    )
+else:
+    render_status_box("Data check passed", "No implausible values were found in the analyzed rows.", "success")
+if quality["unparseable_values"]:
+    render_status_box(
+        "Unreadable values",
+        f"{quality['unparseable_values']:,} cell(s) were not numbers (for example text such as N/A) and were treated as empty.",
+        "info",
+    )
+if quality["wbc_missing"]:
+    render_status_box(
+        "Missing WBC",
+        f"{quality['wbc_missing']:,} analyzed row(s) have no WBC, so they cannot trigger the inflammation/CRP rule.",
+        "info",
+    )
+if quality["flagged_rows"] and not quality["excluded_flagged"]:
+    with st.expander(f"Show the {quality['flagged_rows']:,} flagged row(s)"):
+        flagged_view = (
+            df.filter(pl.col("data_quality_flag").is_not_null())
+            .select([c for c in ["source_row", "hgb", "rbc", "mcv", "wbc", "hct", "mchc", "data_quality_flag"] if c in df.columns])
+            .rename({"source_row": "file_row"})
+        )
+        st.caption("file_row matches the row number in your spreadsheet (header is row 1).")
+        st.dataframe(flagged_view.to_pandas(), use_container_width=True, hide_index=True)
 
 st.markdown("<div class='section-header'></div>", unsafe_allow_html=True)
 
@@ -743,26 +856,13 @@ with bench_col2:
     render_status_box("Sample tube preservation", case_result["tube_alert"], "info")
     render_status_box("Unit economics added value", f"+ {case_result['added_value']:,} IQD through reflex triage.", "success")
 
-    if case_result["reflex_order"] != "None":
-        st.markdown(
-            """
-            <div class='status-box warning' style='margin-bottom: 0 !important; display: block;'>
-                <div class='status-label'>Recommended next step</div>
-                <div class='status-copy'>Serum Ferritin with preserved sample handling and reflex-driven revenue capture.</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-    else:
-        st.markdown(
-            """
-            <div class='status-box success' style='margin-bottom: 0 !important; display: block;'>
-                <div class='status-label'>Recommended next step</div>
-                <div class='status-copy'>No reflex order required. Standard CBC processing remains sufficient.</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+    reflex = case_result["reflex_order"]
+    render_status_box(
+        "Recommended next step",
+        NEXT_STEPS.get(reflex, NEXT_STEPS["None"]),
+        "warning" if reflex != "None" else "success",
+        last=True,
+    )
     st.markdown("</div>", unsafe_allow_html=True)
 
 patient_df = build_patient_view(df)

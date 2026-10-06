@@ -3,4 +3,6 @@ pandas
 polars
 plotly
 scikit-learn
+openpyxl
 # deploy trigger update
+ 
