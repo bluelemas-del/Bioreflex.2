@@ -1,0 +1,11 @@
+priority,rule_name,condition,reflex_order,price_iqd
+1,Suspected Thalassemia Trait,hgb_low and mentzer_index < 13,Hb Electrophoresis,25000
+2,Suspected Iron Deficiency,hgb_low and mentzer_index >= 13,Serum Ferritin,15000
+3,Suspected Systemic Inflammation,wbc_high,CRP,10000
+4,Platelet Abnormality,plt_low or plt_high,Peripheral Blood Smear,0
+5,Abnormal Glucose Control,glucose_high or hba1c_high,,0
+6,Possible Kidney Impairment,creatinine_high or urea_high or bun_high,Urinalysis + eGFR,0
+7,Possible Liver Injury,alt_high or ast_high,GGT,0
+8,Thyroid Abnormality,tsh_high or tsh_low,Free T4,0
+9,Dyslipidemia,ldl_high or triglycerides_high or cholesterol_high or hdl_low,,0
+10,Electrolyte Disturbance,sodium_low or sodium_high or potassium_low or potassium_high or calcium_low or calcium_high,,0
