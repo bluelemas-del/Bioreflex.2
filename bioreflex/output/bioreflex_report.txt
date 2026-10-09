@@ -1,0 +1,82 @@
+
+════════════════════════════════════════════════════════════════════════════════════
+  BioRefleX | تقرير محرك الاستدلال المخبري
+════════════════════════════════════════════════════════════════════════════════════
+
+■ 1) Data Quality | جودة البيانات
+────────────────────────────────────────────────────────────────────────────────────
+  Rows in file                                1,281
+  Valid rows analysed                         1,269
+  Quarantined rows                            12
+     - implausible_hgb: 4
+     - implausible_hgb,implausible_rbc,implausible_mcv: 3
+     - implausible_mcv: 3
+     - implausible_hgb,implausible_rbc: 1
+     - implausible_rbc: 1
+
+■ 2) Executive Summary | الملخص التنفيذي
+────────────────────────────────────────────────────────────────────────────────────
+  Cases flagged for reflex testing            309 of 1,269
+  Screening yield                             24.35%
+  Cases within reference / no test            960
+
+■ 3) Suspected Findings | التوزيع التشخيصي
+────────────────────────────────────────────────────────────────────────────────────
+  Clinical flag                               Count  Share  Avg Hb  Avg Mentzer               
+  ──────────────────────────────────────────  ─────  ─────  ──────  ───────────  ─────────────
+  Within Reference Range                        662  52.2%   13.48        18.04  █████████████
+  Anemia (Non-Microcytic) - Clinician Review    335  26.4%   10.66        23.09  ██████       
+  Suspected Iron Deficiency                     193  15.2%    9.56        18.17  ████         
+  Suspected Systemic Inflammation                55   4.3%   13.83        17.66  █            
+  Suspected Thalassemia Trait                    24   1.9%    9.27        11.78  █            
+
+■ 4) Recommended Reflex Tests | الفحوصات التكميلية الموصى بها
+────────────────────────────────────────────────────────────────────────────────────
+  Recommended test(s)                                    Count  Share  Reflex revenue (IQD)
+  ─────────────────────────────────────────────────────  ─────  ─────  ────────────────────
+  None                                                     960  75.7%                     0
+  Serum Ferritin Test                                      164  12.9%             2,460,000
+  C-Reactive Protein (CRP)                                  92   7.2%               920,000
+  Serum Ferritin Test + C-Reactive Protein (CRP)            29   2.3%               725,000
+  Hemoglobin Electrophoresis                                21   1.7%               525,000
+  Hemoglobin Electrophoresis + C-Reactive Protein (CRP)      3   0.2%               105,000
+
+■ 5) Financial Impact | الأثر المالي (IQD)
+────────────────────────────────────────────────────────────────────────────────────
+  Baseline revenue (CBC only)                      12,690,000
+  Reflex revenue (potential)                        4,735,000
+  Total potential revenue                          17,425,000
+  Avg ticket: before -> after                 10,000 -> 13,731
+  Basket size growth                          +37.31%
+  Note: assumes every flagged patient completes the recommended test (upper bound).
+
+■ 6) Sample Flagged Records | أمثلة على الحالات المحوّلة
+────────────────────────────────────────────────────────────────────────────────────
+  [1] ID f401d01d   Hb=9.0  MCV=77.0  RBC=3.97  Mentzer=19.4
+      Flag : Suspected Iron Deficiency
+      Test : Serum Ferritin Test   (25,000 IQD)
+      Why  : Hb 9.0 < 12.0; MCV 77.0 < 80; Mentzer 19.4 >= 13
+
+  [2] ID 45aed9fe   Hb=3.8  MCV=77.9  RBC=4.22  Mentzer=18.46
+      Flag : Suspected Iron Deficiency
+      Test : Serum Ferritin Test   (25,000 IQD)
+      Why  : Hb 3.8 < 12.0; MCV 77.9 < 80; Mentzer 18.46 >= 13
+
+  [3] ID b93921bf   Hb=8.8  MCV=75.2  RBC=3.96  Mentzer=18.99
+      Flag : Suspected Iron Deficiency
+      Test : Serum Ferritin Test   (25,000 IQD)
+      Why  : Hb 8.8 < 12.0; MCV 75.2 < 80; Mentzer 18.99 >= 13
+
+  [4] ID 73b71cfb   Hb=14.2  MCV=87.1  RBC=5.15  Mentzer=16.91
+      Flag : Suspected Systemic Inflammation
+      Test : C-Reactive Protein (CRP)   (20,000 IQD)
+      Why  : WBC 16.7 > 11
+
+  [5] ID c9059da6   Hb=16.5  MCV=86.9  RBC=5.78  Mentzer=15.03
+      Flag : Suspected Systemic Inflammation
+      Test : C-Reactive Protein (CRP)   (20,000 IQD)
+      Why  : WBC 12.3 > 11
+
+════════════════════════════════════════════════════════════════════════════════════
+  Decision-support screening only; not a diagnosis. | أداة فرز داعمة وليست تشخيصاً نهائياً.
+════════════════════════════════════════════════════════════════════════════════════

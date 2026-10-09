@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>الاستقبال وقيد المرضى - BioReflex Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>body { font-family: 'Tajawal', sans-serif; }</style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6">
+  <div class="max-w-7xl mx-auto">
+    {% include 'navbar.html' %}
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- نموذج تسجيل المراجع وقطع الوصل -->
+      <div class="md:col-span-1 bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl h-fit">
+        <h2 class="text-xl font-bold text-teal-300 mb-4">تسجيل مراجع جديد</h2>
+        <form action="/register-patient" method="POST" class="space-y-4">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">كود المراجع / الباركود</label>
+            <input type="text" name="patient_id" value="{{ next_patient_id }}" autocomplete="off" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-teal-300 font-mono focus:outline-teal-400">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">اسم المراجع الثلاثي</label>
+            <input type="text" name="name" required placeholder="الاسم الثلاثي" autocomplete="off" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-teal-400">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">العمر</label>
+              <input type="number" name="age" required placeholder="30" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-teal-400">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">الجنس</label>
+              <select name="gender" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-teal-400">
+                <option value="female">أنثى</option>
+                <option value="male">ذكر</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- قائمة الفحوصات المطلوبة والأسعار -->
+          <div class="pt-3 border-t border-slate-700">
+            <span class="text-xs font-bold text-slate-300 block mb-2">الفحوصات المطلوبة:</span>
+            <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-3 space-y-2.5">
+              <label class="flex items-center space-x-2 space-x-reverse text-sm cursor-pointer hover:text-teal-300 transition">
+                <input type="checkbox" name="tests" value="CBC" checked class="rounded border-slate-700 text-teal-500 focus:ring-0">
+                <span class="flex-1">صورة الدم الكاملة (CBC)</span>
+                <span class="text-xs font-mono text-slate-400">10,000 د.ع</span>
+              </label>
+              <label class="flex items-center space-x-2 space-x-reverse text-sm cursor-pointer hover:text-teal-300 transition">
+                <input type="checkbox" name="tests" value="Liver" class="rounded border-slate-700 text-teal-500 focus:ring-0">
+                <span class="flex-1">وظائف الكبد (Liver Panel)</span>
+                <span class="text-xs font-mono text-slate-400">15,000 د.ع</span>
+              </label>
+              <label class="flex items-center space-x-2 space-x-reverse text-sm cursor-pointer hover:text-teal-300 transition">
+                <input type="checkbox" name="tests" value="Renal" class="rounded border-slate-700 text-teal-500 focus:ring-0">
+                <span class="flex-1">وظائف الكلى (Renal Panel)</span>
+                <span class="text-xs font-mono text-slate-400">15,000 د.ع</span>
+              </label>
+              <label class="flex items-center space-x-2 space-x-reverse text-sm cursor-pointer hover:text-teal-300 transition">
+                <input type="checkbox" name="tests" value="Metabolic" class="rounded border-slate-700 text-teal-500 focus:ring-0">
+                <span class="flex-1">لوحة الأيض والسكر (Metabolic)</span>
+                <span class="text-xs font-mono text-slate-400">20,000 د.ع</span>
+              </label>
+              <label class="flex items-center space-x-2 space-x-reverse text-sm cursor-pointer hover:text-teal-300 transition">
+                <input type="checkbox" name="tests" value="Thyroid" class="rounded border-slate-700 text-teal-500 focus:ring-0">
+                <span class="flex-1">الغدة الدرقية (TSH)</span>
+                <span class="text-xs font-mono text-slate-400">15,000 د.ع</span>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold py-3 rounded-xl transition text-sm flex items-center justify-center space-x-2 space-x-reverse shadow-lg">
+            <span>حفظ وقطع الوصل</span>
+            <svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          </button>
+        </form>
+      </div>
+
+      <!-- قائمة الوصولات المسجلة اليوم -->
+      <div class="md:col-span-2 bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
+        <h2 class="text-xl font-bold text-white mb-4">قائمة الوصولات المسجلة اليوم</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-right text-sm">
+            <thead class="bg-slate-900/70 text-slate-300 text-xs">
+              <tr>
+                <th class="p-3">رقم الوصل</th>
+                <th class="p-3">كود المراجع</th>
+                <th class="p-3">الاسم</th>
+                <th class="p-3">المبلغ المستلم</th>
+                <th class="p-3">حالة التحليل</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-700/60">
+              {% for o in orders %}
+              <tr class="hover:bg-slate-700/40 transition">
+                <td class="p-3 font-mono text-teal-400 font-bold">{{ o.order_code }}</td>
+                <td class="p-3 font-semibold">{{ o.patient.patient_id }}</td>
+                <td class="p-3 text-white">{{ o.patient.name }}</td>
+                <td class="p-3 font-bold text-emerald-400">{{ "{:,.0f}".format(o.base_price) }} د.ع</td>
+                <td class="p-3">
+                  {% if o.status == 'Pending' or o.status == 'قيد الانتظار' %}
+                    <span class="bg-amber-950/60 text-amber-300 border border-amber-600/50 px-2 py-0.5 rounded text-xs">Pending</span>
+                  {% else %}
+                    <span class="bg-emerald-950/60 text-emerald-300 border border-emerald-600/50 px-2 py-0.5 rounded text-xs">Completed</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
