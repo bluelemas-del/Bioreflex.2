@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import polars as pl
 
 from pipeline import CBCPipeline
+#python -m streamlit run app.py    to run app
 
 
 CSV_PATH = "diagnosed_cbc_data_v4.csv"
