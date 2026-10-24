@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لوحة الإدارة والأرباح - BioReflex Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>body { font-family: 'Tajawal', sans-serif; }</style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6">
+  <div class="max-w-7xl mx-auto">
+    
+    <!-- شريط التنقل الموحد فقط (بدون أي كود هيدر إضافي) -->
+    {% include 'navbar.html' %}
+
+    <!-- بطاقات المؤشرات المالية والتشغيلية -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
+        <span class="text-xs text-slate-400 block mb-1">إجمالي الفحوصات المنفذة</span>
+        <span class="text-3xl font-extrabold text-white font-mono">{{ "{:,}".format(total_orders) }}</span>
+        <span class="text-[11px] text-slate-500 block mt-2">سجل الفحوصات الكلي</span>
+      </div>
+
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
+        <span class="text-xs text-slate-400 block mb-1">الإيراد الروتيني الأساسي</span>
+        <span class="text-2xl font-extrabold text-slate-200 font-mono">{{ "{:,.0f}".format(total_base_rev) }} د.ع</span>
+        <span class="text-[11px] text-slate-500 block mt-2">متحصلات الفحوصات الأولية</span>
+      </div>
+
+      <div class="bg-slate-800 border border-teal-500/30 rounded-2xl p-5 shadow-lg bg-teal-950/20">
+        <span class="text-xs text-teal-400 font-bold block mb-1">أرباح مسارات Reflex المضافة</span>
+        <span class="text-2xl font-extrabold text-teal-300 font-mono">+{{ "{:,.0f}".format(total_addon_rev) }} د.ع</span>
+        <span class="text-[11px] text-teal-500 block mt-2">عائد الفحوصات التلقائية الموجهة</span>
+      </div>
+
+      <div class="bg-slate-800 border border-emerald-500/30 rounded-2xl p-5 shadow-lg bg-emerald-950/20">
+        <span class="text-xs text-emerald-400 font-bold block mb-1">إجمالي دخل المختبر الكلي</span>
+        <span class="text-3xl font-extrabold text-emerald-400 font-mono">{{ "{:,.0f}".format(total_rev) }} د.ع</span>
+        <span class="text-[11px] text-emerald-500 block mt-2">صافي التدفق المالي المسجل</span>
+      </div>
+
+    </div>
+
+    <!-- التوزيع الإحصائي للحالات المشخصة والحرجة -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5">
+        <h3 class="text-sm font-bold text-slate-300 mb-3">توزيع الفرز السريري (Clinical Distribution)</h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between items-center bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/60">
+            <span class="text-slate-400">فحوصات ضمن المعدل الطبيعي</span>
+            <span class="font-bold text-white font-mono">{{ normal_count }}</span>
+          </div>
+          <div class="flex justify-between items-center bg-amber-950/20 p-2.5 rounded-xl border border-amber-600/30">
+            <span class="text-amber-300">اشتباه فقر دم بنقص الحديد</span>
+            <span class="font-bold text-amber-400 font-mono">{{ iron_def_count }}</span>
+          </div>
+          <div class="flex justify-between items-center bg-purple-950/20 p-2.5 rounded-xl border border-purple-600/30">
+            <span class="text-purple-300">اشتباه ثلاسيميا صغرى</span>
+            <span class="font-bold text-purple-400 font-mono">{{ thalassemia_count }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="md:col-span-2 bg-slate-800 border border-slate-700 rounded-2xl p-5">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-sm font-bold text-rose-300">تنبيهات الحالات الحرجة للاتصال الفوري (Panic Alerts)</h3>
+          <span class="text-xs bg-rose-950 text-rose-300 border border-rose-600 px-2 py-0.5 rounded-full font-bold font-mono">{{ critical_count }} حالة</span>
+        </div>
+        
+        {% if critical_cases %}
+          <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs">
+              <thead class="bg-slate-900/70 text-slate-400 border-b border-slate-700">
+                <tr>
+                  <th class="p-2">كود المراجع</th>
+                  <th class="p-2">الاسم</th>
+                  <th class="p-2">Hgb</th>
+                  <th class="p-2">الصفائح</th>
+                  <th class="p-2">الإجراء المطلوب</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-700/50">
+                {% for c in critical_cases %}
+                <tr>
+                  <td class="p-2 font-mono text-teal-400 font-bold">{{ c.order.patient.patient_id }}</td>
+                  <td class="p-2 text-white">{{ c.order.patient.name }}</td>
+                  <td class="p-2 font-mono font-bold text-rose-400">{{ c.hgb }} g/dL</td>
+                  <td class="p-2 font-mono font-bold text-rose-400">{{ c.platelets }}</td>
+                  <td class="p-2 text-rose-300">إشعار الطبيب المعالج فوراً</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-slate-500 text-xs py-8 text-center bg-slate-900/40 rounded-xl border border-slate-800">
+            لا توجد حالات حرجة غير مبلّغة حالياً.
+          </div>
+        {% endif %}
+      </div>
+
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تقرير مخبري سريري - {{ order.order_code }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Tajawal', sans-serif; }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; color: black !important; padding: 0 !important; }
+      .print-border { border: 1px solid #cbd5e1 !important; box-shadow: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8">
+
+  <!-- أزرار التحكم والطباعة ومشاركة واتساب -->
+  <div class="max-w-4xl mx-auto mb-6 flex justify-between items-center no-print">
+    <a href="/lab-console" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl border border-slate-700 transition">
+      ← العودة للفرز
+    </a>
+    <div class="flex space-x-3 space-x-reverse">
+      <a href="{{ wa_link }}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 space-x-reverse shadow transition">
+        <span>💬 إرسال التقرير والقرار للمريض (WhatsApp)</span>
+      </a>
+      <button onclick="window.print()" class="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 space-x-reverse shadow transition">
+        <span>🖨️ طباعة التقرير / حفظ PDF</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ورقة التقرير الطبية الرسمية -->
+  <div class="max-w-4xl mx-auto bg-white text-slate-900 rounded-3xl p-8 shadow-2xl print-border border border-slate-200">
+    
+    <!-- الترويسة الرئيسية -->
+    <header class="flex justify-between items-start border-b-2 border-slate-800 pb-5 mb-6">
+      <div>
+        <h1 class="text-2xl font-black text-slate-900">مختبر BioReflex السريري التخصصي</h1>
+        <p class="text-xs text-slate-500 mt-1">قسم الفحوصات الجزيئية وأمراض الدم | بغداد - العراق</p>
+      </div>
+      <div class="text-left font-mono text-xs text-slate-600">
+        <p class="font-bold text-teal-700 text-sm">وصل رقم: {{ order.order_code }}</p>
+        <p class="mt-1">التاريخ: {{ order.created_at.strftime('%Y-%m-%d %H:%M') if order.created_at else '2026-10-08' }}</p>
+      </div>
+    </header>
+
+    <!-- بيانات المراجع -->
+    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs mb-6">
+      <div>
+        <span class="text-slate-400 block mb-0.5">اسم المراجع:</span>
+        <span class="font-extrabold text-slate-900 text-sm">{{ patient.name }}</span>
+      </div>
+      <div>
+        <span class="text-slate-400 block mb-0.5">كود المراجع:</span>
+        <span class="font-mono font-bold text-teal-800 text-sm">{{ patient.patient_id }}</span>
+      </div>
+      <div>
+        <span class="text-slate-400 block mb-0.5">العمر:</span>
+        <span class="font-bold text-slate-900">{{ patient.age }} سنة</span>
+      </div>
+      <div>
+        <span class="text-slate-400 block mb-0.5">الجنس:</span>
+        <span class="font-bold text-slate-900">{{ 'ذكر' if patient.gender == 'male' else 'أنثى' }}</span>
+      </div>
+    </div>
+
+    <!-- جدول نتائج الفحص المفسرة والمقيمة -->
+    <table class="w-full text-right text-xs mb-6 border border-slate-200 rounded-xl overflow-hidden">
+      <thead class="bg-slate-100 text-slate-700 border-b border-slate-200">
+        <tr>
+          <th class="p-3">الفحص (Test Name)</th>
+          <th class="p-3">النتيجة (Result)</th>
+          <th class="p-3">المعدل الطبيعي (Reference)</th>
+          <th class="p-3">الوحدة</th>
+          <th class="p-3">التقييم السريري (Flag)</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for t in tests_detail %}
+        <tr class="hover:bg-slate-50">
+          <td class="p-3 font-bold text-slate-800">{{ t.name }}</td>
+          <td class="p-3 font-mono font-extrabold text-sm text-slate-900">{{ t.val }}</td>
+          <td class="p-3 font-mono text-slate-500">{{ t.ref }}</td>
+          <td class="p-3 text-slate-500">{{ t.unit }}</td>
+          <td class="p-3">
+            <span class="px-2.5 py-1 rounded-md text-[11px] font-bold {{ t.color }}">{{ t.status }}</span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- صندوق القرار والتوصية السريرية (Reflex Decision) -->
+    <div class="border border-teal-200 bg-teal-50/60 rounded-2xl p-5 mb-6">
+      <h3 class="text-sm font-extrabold text-teal-900 mb-2">الملاحظات التشخيصية والتوصيات (Clinical Decision):</h3>
+      <p class="text-xs text-slate-700 mb-3">
+        <span class="font-bold text-slate-900">التشخيص الموجه: </span>
+        <span class="font-extrabold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">{{ res.clinical_flag }}</span>
+      </p>
+
+      <div class="bg-white border border-teal-300 rounded-xl p-4 shadow-sm space-y-2">
+        <div class="flex items-center space-x-2 space-x-reverse text-xs">
+          <span class="font-bold text-teal-900">فحص Reflex الموصى به:</span>
+          <span class="font-mono font-bold text-teal-700 text-sm">{{ res.reflex_order }}</span>
+        </div>
+        <p class="text-[11px] text-slate-600">
+          <span class="font-bold text-slate-800">سبب الفحص: </span>
+          نظراً لوجود فقر دم وصغر حجم الكريات، يلزم إجراء الفحص الارتكاسي لتحديد النمط بدقة وتفادي صرف مكملات قد تضر بالمريض.
+        </p>
+        <p class="text-[11px] text-amber-800 font-bold bg-amber-50 p-2 rounded-lg border border-amber-200">
+          🧪 تنبيه المختبر: {{ res.tube_alert }}. تم الاحتفاظ بالعينة تحت الظروف المعيارية، ولا حاجة لإعادة سحب دم جديد.
+        </p>
+      </div>
+
+      <!-- واجهة موافقة أو رفض المريض التفاعلية الرقمية -->
+      <div class="mt-4 pt-3 border-t border-teal-200 flex items-center justify-between no-print">
+        <span class="text-xs font-bold text-teal-950">موافقة المريض على إجراء فحص Reflex من العينة المحفوظة:</span>
+        <form action="/update-patient-consent" method="POST" class="flex space-x-2 space-x-reverse">
+          <input type="hidden" name="order_id" value="{{ order.id }}">
+          <button type="submit" name="consent" value="تمت الموافقة" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-1.5 rounded-lg text-xs transition">
+            ✓ أوافق على الفحص
+          </button>
+          <button type="submit" name="consent" value="تم الرفض" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-1.5 rounded-lg text-xs transition">
+            ✕ أرفض الفحص
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- التذييل والتوقيع -->
+    <div class="flex justify-between items-end pt-4 border-t border-slate-200 text-xs text-slate-500">
+      <div>
+        <p class="font-semibold text-slate-700">اعتماد الفحص: محلل المختبر المناوب</p>
+        <p class="text-[10px] text-slate-400 mt-0.5">تم الفرز بواسطة محرك BioReflex CDSS</p>
+      </div>
+      <div class="text-center">
+        <div class="w-32 border-b border-dashed border-slate-400 mb-1"></div>
+        <p class="text-[10px]">ختم وتوقيع الإدارة</p>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

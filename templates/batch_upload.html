@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>استيراد ملفات العينات - BioReflex Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>body { font-family: 'Tajawal', sans-serif; }</style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6">
+  <div class="max-w-7xl mx-auto">
+    {% include 'navbar.html' %}
+
+    <div class="max-w-2xl mx-auto bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-xl mt-8">
+      <h2 class="text-xl font-bold text-teal-300 mb-2">استيراد نتائج الفحوصات الجماعية (Excel / CSV)</h2>
+      <p class="text-slate-400 text-sm mb-6">ارفعي ملف التحاليل الصادر من أجهزة المختبر أو ملف دفعات المرضى لمعالجتها آلياً عبر المحرك السريري.</p>
+
+      <form action="/process-batch" method="POST" enctype="multipart/form-data" class="space-y-6">
+        <div class="border-2 border-dashed border-slate-600 rounded-xl p-8 text-center bg-slate-900/50 hover:border-teal-400 transition cursor-pointer">
+          <input type="file" name="file" accept=".csv, .xlsx, .xls" required class="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-500 file:text-slate-950 hover:file:bg-teal-400">
+        </div>
+        <button type="submit" class="w-full bg-teal-500 hover:bg-teal-600 font-bold py-3 rounded-xl text-slate-950 transition">
+          معالجة الدفعة واستخراج تنبيهات Reflex ⚡
+        </button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

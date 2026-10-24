@@ -1,0 +1,9 @@
+clinical_flag,reflex_recommendation,sample_count,avg_hgb,avg_mentzer_index,baseline_revenue_iqd,optimized_revenue_iqd,share_pct
+Within Reference Range,None,662,13.48,18.04,6620000,6620000,52.17
+Anemia (Non-Microcytic) - Clinician Review,None,298,10.69,23.03,2980000,2980000,23.48
+Suspected Iron Deficiency,Serum Ferritin Test,164,9.67,18.05,1640000,4100000,12.92
+Suspected Systemic Inflammation,C-Reactive Protein (CRP),55,13.83,17.66,550000,1100000,4.33
+Anemia (Non-Microcytic) - Clinician Review,C-Reactive Protein (CRP),37,10.38,23.55,370000,740000,2.92
+Suspected Iron Deficiency,Serum Ferritin Test + C-Reactive Protein (CRP),29,8.92,18.87,290000,1015000,2.29
+Suspected Thalassemia Trait,Hemoglobin Electrophoresis,21,9.27,11.8,210000,735000,1.65
+Suspected Thalassemia Trait,Hemoglobin Electrophoresis + C-Reactive Protein (CRP),3,9.3,11.68,30000,135000,0.24

@@ -1,0 +1,19 @@
+<header class="flex justify-between items-center border-b border-slate-700 pb-4 mb-6">
+  <div>
+    <h1 class="text-2xl font-black text-teal-400">BioReflex Pro — Clinical LIMS</h1>
+  </div>
+  <nav class="flex items-center space-x-2 space-x-reverse bg-slate-800 p-1.5 rounded-xl border border-slate-700">
+    <a href="/" class="px-4 py-2 rounded-lg text-sm font-bold transition {% if active_page == 'reception' %}bg-teal-500 text-slate-950{% else %}text-slate-300 hover:bg-slate-700{% endif %}">
+      الاستقبال وقيد المرضى
+    </a>
+    <a href="/lab-console" class="px-4 py-2 rounded-lg text-sm font-bold transition {% if active_page == 'lab_console' %}bg-teal-500 text-slate-950{% else %}text-slate-300 hover:bg-slate-700{% endif %}">
+      شاشة الفرز و Reflex
+    </a>
+    <a href="/batch-upload" class="px-4 py-2 rounded-lg text-sm font-bold transition {% if active_page == 'batch_upload' %}bg-teal-500 text-slate-950{% else %}text-slate-300 hover:bg-slate-700{% endif %}">
+      استيراد عينات (Excel/CSV)
+    </a>
+    <a href="/dashboard" class="px-4 py-2 rounded-lg text-sm font-bold transition {% if active_page == 'dashboard' %}bg-teal-500 text-slate-950{% else %}text-slate-300 hover:bg-slate-700{% endif %}">
+      داشبورد الإدارة والأرباح
+    </a>
+  </nav>
+</header>
